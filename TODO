@@ -1,0 +1,31 @@
+Left to do:
+- use Params::Validate
+
+Functions:
+- useradd
+  - create_group
+- usermod
+- groupmod
+- netgroupmod
+- netgroupdel
+- chsh
+- chfn
+- gpasswd
+- findnextxid
+  find the next available free id in uid and gid number spaces.
+
+Scripts:
+- all scripts for new functions
+- palpasswd
+
+Tests:
+- achieve 100% coverage (wow...! Will need a LDAP mock object)
+- test findnext*id
+- test scripts
+
+Discover schemas for objects in order to:
+- get the full list of objectclasses in the hierarchy
+- get the list of mandatory attributes and fail if those are not present
+- Write Class::LDAP to do that and instantiate a hierarchy of classes
+  from objectclass names (hard:)
+

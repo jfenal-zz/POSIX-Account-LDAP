@@ -1,0 +1,25 @@
+Build.PL
+Changes
+lib/POSIX/Account/LDAP.pm
+Makefile.PL
+MANIFEST
+META.yml # Will be created by "make dist"
+README
+TODO
+script/palgroupadd
+script/palnetgroupadd
+script/paluseradd
+script/sudoers2ldif
+t/00-load.t
+t/10-config.t
+t/11-connect.t
+t/20-findnextuid.t
+t/21-findnextgid.t
+t/22-findnextxid.t
+t/30-useradd.t
+t/31-groupadd.t
+t/boilerplate.t
+t/kwalitee.t
+t/pod-coverage.t
+t/pod.t
+t/test.cfg

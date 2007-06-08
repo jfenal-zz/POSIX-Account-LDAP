@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Net::LDAP;
+use Config::Simple;
+use Getopt::Long;
+use Data::Dumper;
+use Carp;
+use lib '.';
+use POSIX::Account::LDAP;
+use vars qw( $ldap $mesg);
+
+# Load configuration
+our %Config;
+my $cfg = Config::Simple->import_from( 'altairldap.cfg', \%Config );
+
+#        groupadd [-g gid [-o]] [-f] group
+#  -f, --force                   force exit with success status if the specified group already exists
+#  -r,                           create system account
+#  -g, --gid GID                 use GID for the new group
+#  -h, --help                    display this help message and exit
+#  -o, --non-unique              allow create group with duplicate (non-unique) GID
+
+
+
+my $comment;
+my $force;
+
+my %opts;
+# Parse options
+my $r = GetOptions(
+    "f|force",                  \$force,
+    "c|comment=s",            \$comment,
+    "o|non-unique",          \$opts{'non-unique'},
+    "O|org=s",                \$opts{org},
+    "g|gid=i",                \$opts{gidNumber},
+);
+
+my $pal = POSIX::Account::LDAP->new();
+
+my $name;
+
+while ( defined( $name = shift @ARGV ) ) {
+    $pal->groupadd( { name => $name, %opts } );
+}
+
+

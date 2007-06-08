@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use Carp;
+use lib qw(. lib);
+use POSIX::Account::LDAP;
+use vars qw( $ldap $mesg);
+
+
+# useradd Linux:
+#
+#       useradd [-c comment] [-d home_dir]
+#               [-e expire_date] [-f inactive_time]
+#               [-g initial_group] [-G group[,...]]
+#               [-m [-k skeleton_dir] | -M] [-n] [-o] [-p passwd] [-r] [-l]
+#               [-s shell] [-u uid] login
+
+my $comment;
+
+my $pal = POSIX::Account::LDAP->new();
+
+my %opts;
+# Parse options
+my $r = GetOptions(
+    "c|comment=s",            \$comment,
+    "d|homedir=s",            \$opts{homeDirectory},
+    "e|expire=s",             \$opts{expire},
+    "f|inactive=i",           \$opts{inactive},
+    "g|group=s",              \$opts{group},
+    "G|groups=s",             \$opts{groups},
+    "m|mungedir",             \$opts{mungedir},
+    "k|skeldir=s",            \$opts{skeldir},
+    "M|donotmungedir",        \$opts{donotmungedir},
+    "n|donotcreategroupuser", \$opts{donotcreategroupuser},
+    "o|allowdupuid",          \$opts{allowdupuid},
+    "p|passwd=s",             \$opts{userPassword},
+    "s|shell=s",              \$opts{loginShell},
+    "O|org=s",                \$opts{org},
+    "u|uid=i",                \$opts{uidNumber},
+);
+
+my $name;
+
+while ( defined( $name = shift @ARGV ) ) {
+    $pal->useradd(\%opts, $name);
+    $pal->groupadd(\%opts, $name) if not $opts{donotcreategroupuser};
+}
+

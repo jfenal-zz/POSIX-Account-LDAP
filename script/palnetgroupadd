@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Net::LDAP;
+use Config::Simple;
+use Getopt::Std;
+use Carp;
+use vars qw( %opts $ldap $mesg );
+
+getopt('m:', \%opts);
+
+my %Config;
+my $cfg=Config::Simple->import_from( 'altairldap.cfg', \%Config );
+
+$ldap = Net::LDAP->new( $Config{'directory.host'}, defined($Config{'directory.port'})? (port => $Config{'directory.port'}):() ) or die "$@";
+
+$mesg = $ldap->bind( $Config{'directory.managerdn'}, password => $Config{'directory.managerpw'}) ;
+$mesg->code && die $mesg->error;
+
+my $netgroupname;
+while (defined( $netgroupname = shift @ARGV )) {
+print STDERR "netgroupname : $netgroupname\n";
+	my $filt = "*";
+	$filt = $netgroupname if defined ($netgroupname);
+	$mesg = $ldap->search( # perform a search
+			       base   => $Config{'directory.base'},
+			       filter => "(&(objectclass=nisnetgroup)(cn=$filt))"
+			     );
+
+	$mesg->code && die $mesg->error;
+
+	carp "Entry $filt already exists" if scalar $mesg->all_entries;
+
+	my $mesg = $ldap->add (
+		"cn=$netgroupname, ou=Netgroups, $Config{'directory.base'}",
+		attr => [
+			'cn'=>$netgroupname,
+			'objectClass' => [ 'top', 'nisnetgroup' ],
+		]
+	);
+
+	$mesg->code && die $mesg->error;
+}
+
+$mesg = $ldap->unbind;   # take down session
+
